@@ -1,0 +1,15 @@
+apiVersion: v2
+name: myapp
+description: A Helm chart for deploying web application on K3s
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+
+maintainers:
+  - name: Valeriy Palchukovskiy
+    email: valeriy_palchukovskiy@mail.ru
+
+keywords:
+  - kubernetes
+  - k3s
+  - web-app
