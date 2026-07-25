@@ -36,6 +36,37 @@
 
 ## 🏗 Архитектура
 
+```mermaid
+flowchart TB
+    subgraph External["🌐 Внешняя среда"]
+        User["👤 Пользователь"]
+        GitHub[("🐙 GitHub Repo")]
+    end
+    subgraph Master["🟩 Master — UltraVDS · 2vCPU/4GB"]
+        API["🔷 K3s API :6443"]
+        Ingress["🌐 Nginx Ingress"]
+        ArgoCD["🔄 ArgoCD"]
+        Prometheus["📈 Prometheus"]
+        Grafana["📊 Grafana"]
+        Loki["📝 Loki"]
+    end
+    subgraph Worker["🟨 Worker — JustHost · 1vCPU/1GB"]
+        Kubelet["⚙️ Kubelet"]
+        Flannel["🔗 Flannel"]
+        Pod1["📦 Pod #1"]
+        Pod2["📦 Pod #2"]
+    end
+    User --> Ingress
+    Ingress --> Pod1
+    Ingress --> Pod2
+    ArgoCD --> API
+    API --> Kubelet
+    Flannel <-.->|"VXLAN"| API
+    GitHub -.-> ArgoCD
+    Prometheus -.-> API
+    Grafana -.-> Prometheus
+```
+
 **Master Node (UltraVDS, 2 vCPU / 4 GB RAM):**
 - K3s API Server — единая точка входа
 - ArgoCD — GitOps оператор
