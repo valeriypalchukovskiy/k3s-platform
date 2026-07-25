@@ -1,0 +1,49 @@
+flowchart TB
+    subgraph External["🌐 Внешняя среда"]
+        User["👤 Пользователь"]
+        GitHub[("🐙 GitHub Repo")]
+    end
+
+    subgraph Master["🟩 Master Node — UltraVDS · 2 vCPU / 4 GB RAM"]
+        API["🔷 K3s API Server<br/>:6443"]
+        Ingress["🌐 Nginx Ingress"]
+        CertMgr["🔐 cert-manager"]
+        ArgoCD["🔄 ArgoCD"]
+        Prometheus["📈 Prometheus"]
+        Grafana["📊 Grafana"]
+        Loki["📝 Loki"]
+    end
+
+    subgraph Worker["🟨 Worker Node — JustHost · 1 vCPU / 1 GB RAM"]
+        Kubelet["⚙️ Kubelet<br/>+ containerd"]
+        Flannel["🔗 Flannel CNI"]
+        Promtail["📤 Promtail"]
+        Pod1["📦 App Pod #1"]
+        Pod2["📦 App Pod #2"]
+    end
+
+    User -->|"HTTPS :443"| Ingress
+    Ingress --> Pod1
+    Ingress --> Pod2
+    ArgoCD -->|"syncs"| API
+    API -->|"manages"| Kubelet
+    Promtail -->|"logs"| Pod1
+    Promtail -->|"logs"| Pod2
+    Promtail -->|"push"| Loki
+    GitHub -.->|"pull"| ArgoCD
+    Prometheus -.->|"scrape"| API
+    Prometheus -.->|"scrape"| Kubelet
+    Grafana -.->|"query"| Prometheus
+    CertMgr -.->|"TLS"| Ingress
+    Flannel <-.->|"VXLAN :8472"| API
+
+    style External fill:#f5f5f5,stroke:#999,stroke-width:2px
+    style Master fill:#d4edda,stroke:#28a745,stroke-width:3px
+    style Worker fill:#fff3cd,stroke:#ffc107,stroke-width:3px
+    style API fill:#326ce5,stroke:#fff,color:#fff
+    style ArgoCD fill:#ef7b4d,stroke:#fff,color:#fff
+    style Ingress fill:#326ce5,stroke:#fff,color:#fff
+    style Prometheus fill:#e6522c,stroke:#fff,color:#fff
+    style Grafana fill:#f46800,stroke:#fff,color:#fff
+    style Loki fill:#f46800,stroke:#fff,color:#fff
+    style CertMgr fill:#28a745,stroke:#fff,color:#fff
