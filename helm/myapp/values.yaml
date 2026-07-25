@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  repository: ghcr.io/valeriypalchukovskiy/k3s-platform/myapp
+  repository: nginx
   pullPolicy: IfNotPresent
   tag: "latest"
 
