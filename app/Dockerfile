@@ -13,4 +13,3 @@ EXPOSE 8080
 
 # Запуск от непривилегированного пользователя (security best practice)
 USER nginx
-DOCKERFILE_EOF

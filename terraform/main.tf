@@ -1,6 +1,6 @@
 terraform {
   required_version = ">= 1.9.0"
-  
+
   required_providers {
     # В реальности здесь был бы провайдер твоего VPS
     # Например: yandex, digitalocean, hetzner
@@ -15,17 +15,17 @@ terraform {
 locals {
   project_name = "k3s-platform"
   environment  = "production"
-  
+
   servers = {
     master = {
       name     = "${local.project_name}-master"
       vcpu     = 2
-      memory   = 4096  # MB
-      disk     = 80    # GB
+      memory   = 4096 # MB
+      disk     = 80   # GB
       provider = "ultravds"
       os       = "ubuntu-24.04"
     }
-    
+
     worker = {
       name     = "${local.project_name}-worker"
       vcpu     = 1
