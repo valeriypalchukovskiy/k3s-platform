@@ -1,4 +1,3 @@
-```markdown
 <div align="center">
 
 # 🚀 K3s Platform
