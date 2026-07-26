@@ -86,19 +86,17 @@ graph TB
 
 ## 📸 Скриншоты
 
-| Kubernetes Cluster | Running Pods | CI/CD Pipeline |
-|:------------------:|:------------:|:--------------:|
+| Actions workflow | ArgoCD Synced + Healthy | Monitoring |
+|:----------------:|:-----------------------:|:----------:|
 | ![Nodes](screenshots/screenshot-01.png) | ![Pods](screenshots/screenshot-02.png) | ![GitHub Actions](screenshots/screenshot-03.png) |
 
-| GitOps Dashboard | Prometheus Targets | Monitoring |
-|:----------------:|:------------------:|:----------:|
+| Monitoring | Monitoring | Node-exporter 2/2 up |
+|:----------:|:----------:|:--------------------:|
 | ![ArgoCD UI](screenshots/screenshot-04.png) | ![Prometheus](screenshots/screenshot-05.png) | ![Grafana](screenshots/screenshot-06.png) |
 
-| Deployed App | App Details | Final Result |
-|:------------:|:-----------:|:------------:|
+| Ready Nodes | Running Pods | App Browser |
+|:-----------:|:------------:|:-----------:|
 | ![Application](screenshots/screenshot-07.png) | ![Details](screenshots/screenshot-08.png) | ![Result](screenshots/screenshot-09.png) |
-
-> 💡 **Подсказка:** Если подписи не соответствуют содержимому скринов — просто переименуй файлы `screenshot-01.png` ... `screenshot-09.png` так, чтобы они соответствовали сетке.
 
 ---
 
