@@ -1,22 +1,175 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>K3s Platform Demo App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K3s Platform | Demo Application</title>
     <style>
-        body { font-family: system-ui; text-align: center; padding: 50px; background: #f0f9ff; }
-        h1 { color: #326ce5; }
-        .info { background: white; padding: 20px; border-radius: 8px; max-width: 600px; margin: 20px auto; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        code { background: #e8e8e8; padding: 2px 8px; border-radius: 4px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 60px 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo { font-size: 64px; margin-bottom: 20px; }
+        
+        h1 {
+            font-size: 48px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 20px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+        
+        .status {
+            display: inline-block;
+            background: #10b981;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+        
+        .status::before {
+            content: "● ";
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .info-row:last-child { border-bottom: none; }
+        .info-label { opacity: 0.8; }
+        .info-value { font-family: monospace; font-weight: 600; }
+        
+        .tech-stack {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+        
+        .tech {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        a {
+            color: white;
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(255,255,255,0.5);
+        }
     </style>
 </head>
 <body>
-    <h1>🚀 Hello from K3s Platform!</h1>
-    <div class="info">
-        <p>Это демо-приложение, задеплоенное через <strong>GitOps (ArgoCD)</strong> и <strong>CI/CD (GitHub Actions)</strong>.</p>
-        <p>Pod: <code>$HOSTNAME</code></p>
-        <p>Node: <code id="node">loading...</code></p>
+    <div class="container">
+        <div class="logo">🚀</div>
+        <h1>K3s Platform</h1>
+        <p class="subtitle">Production-Ready Kubernetes GitOps Platform</p>
+        
+        <div class="status">All Systems Operational</div>
+        
+        <div class="info-card">
+            <div class="info-row">
+                <span class="info-label">Deployment Method:</span>
+                <span class="info-value">GitOps via ArgoCD</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">CI/CD Pipeline:</span>
+                <span class="info-value">GitHub Actions</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Cluster Type:</span>
+                <span class="info-value">Multi-Node K3s</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Monitoring:</span>
+                <span class="info-value">Prometheus + Grafana</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Pod Name:</span>
+                <span class="info-value" id="pod-name">loading...</span>
+            </div>
+        </div>
+        
+        <div class="tech-stack">
+            <span class="tech">☸️ Kubernetes</span>
+            <span class="tech">🐳 Docker</span>
+            <span class="tech">🔄 ArgoCD</span>
+            <span class="tech">⚙️ Helm</span>
+            <span class="tech">📊 Prometheus</span>
+        </div>
+        
+        <div class="footer">
+            <p>Built by <strong>Valeriy Palchukovskiy</strong></p>
+            <p style="margin-top: 10px;">
+                <a href="https://github.com/valeriypalchukovskiy/k3s-platform" target="_blank">View on GitHub →</a>
+            </p>
+        </div>
     </div>
-    <p><small>Проект: github.com/valeriypalchukovskiy/k3s-platform</small></p>
+    
+    <script>
+        // Получаем имя пода из URL (для демо)
+        fetch('/api/podinfo')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('pod-name').textContent = data.hostname || 'unknown';
+            })
+            .catch(() => {
+                document.getElementById('pod-name').textContent = 'myapp-pod';
+            });
+    </script>
 </body>
 </html>
-HTML_EOF
