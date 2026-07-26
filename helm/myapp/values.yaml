@@ -1,9 +1,9 @@
 replicaCount: 2
 
 image:
-  repository: nginx
+  repository: ghcr.io/valeriypalchukovskiy/k3s-platform/myapp
   pullPolicy: IfNotPresent
-  tag: "alpine"
+  tag: "latest"
 
 imagePullSecrets: []
 nameOverride: ""
