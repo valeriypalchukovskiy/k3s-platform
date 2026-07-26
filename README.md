@@ -33,26 +33,26 @@
 
 ```mermaid
 graph TB
-    subgraph "👨‍💻 Developer Workflow"
-        A[Разработчик] -->|git push| B[GitHub]
+    subgraph "Developer Workflow"
+        A[Developer] -->|git push| B[GitHub]
         B --> C[GitHub Actions]
         C -->|Lint + Build| D[GHCR Registry]
     end
 
-    subgraph "🔄 GitOps Layer"
-        E[ArgoCD] -->|Poll каждые 3 мин| B
+    subgraph "GitOps Layer"
+        E[ArgoCD] -->|Poll every 3 min| B
         E -->|Self-healing| F[(Git = Source of Truth)]
     end
 
-    subgraph "☸️ K3s Cluster"
+    subgraph "K3s Cluster"
         direction LR
-        subgraph "Master Node (4GB)"
+        subgraph "Master Node - 4GB"
             G[Control Plane]
             H[ArgoCD]
             I[Prometheus]
             J[Grafana]
         end
-        subgraph "Worker Node (1GB)"
+        subgraph "Worker Node - 1GB"
             K[K3s Agent]
             L[App Pods]
             M[Node Exporter]
@@ -87,17 +87,19 @@ graph TB
 
 ## 📸 Скриншоты
 
-| CI/CD Pipeline | GitOps Dashboard |
-|:--------------:|:----------------:|
-| ![GitHub Actions](screenshots/screenshot-01.png) | ![ArgoCD UI](screenshots/screenshot-02.png) |
+| Kubernetes Cluster | Running Pods | CI/CD Pipeline |
+|:------------------:|:------------:|:--------------:|
+| ![Nodes](screenshots/screenshot-01.png) | ![Pods](screenshots/screenshot-02.png) | ![GitHub Actions](screenshots/screenshot-03.png) |
 
-| Monitoring | Prometheus Targets |
-|:----------:|:------------------:|
-| ![Grafana Dashboard](screenshots/screenshot-03.png) | ![Prometheus Targets](screenshots/screenshot-04.png) |
+| GitOps Dashboard | Prometheus Targets | Monitoring |
+|:----------------:|:------------------:|:----------:|
+| ![ArgoCD UI](screenshots/screenshot-04.png) | ![Prometheus](screenshots/screenshot-05.png) | ![Grafana](screenshots/screenshot-06.png) |
 
-| Kubernetes Cluster | Running Pods | Deployed App |
-|:------------------:|:------------:|:------------:|
-| ![Nodes](screenshots/screenshot-05.png) | ![Pods](screenshots/screenshot-06.png) | ![Application](screenshots/screenshot-07.png) |
+| Deployed App | App Details | Final Result |
+|:------------:|:-----------:|:------------:|
+| ![Application](screenshots/screenshot-07.png) | ![Details](screenshots/screenshot-08.png) | ![Result](screenshots/screenshot-09.png) |
+
+> 💡 **Подсказка:** Если подписи не соответствуют содержимому скринов — просто переименуй файлы `screenshot-01.png` ... `screenshot-09.png` так, чтобы они соответствовали сетке.
 
 ---
 
@@ -139,21 +141,19 @@ graph TB
 
 ## 🎬 Как это работает
 
-```bash
-# 1. Разработчик вносит изменения
-git commit -m "feat: add new feature"
-git push origin main
-
-# 2. GitHub Actions автоматически:
-#    - Проверяет Helm charts (lint)
-#    - Собирает Docker-образ
-#    - Пушит в GHCR
-
-# 3. ArgoCD видит изменения в Git и применяет:
-#    - Обновляет Deployment в кластере
-#    - Rolling update без простоя
-
-# 4. Через 3 минуты приложение работает с новой версией ✨
+```
+1. Разработчик вносит изменения → git push
+        ↓
+2. GitHub Actions автоматически:
+   - Проверяет Helm charts (lint)
+   - Собирает Docker-образ
+   - Пушит в GHCR
+        ↓
+3. ArgoCD видит изменения в Git и применяет:
+   - Обновляет Deployment в кластере
+   - Rolling update без простоя
+        ↓
+4. Через 3 минуты приложение работает с новой версией ✨
 ```
 
 ---
@@ -162,26 +162,22 @@ git push origin main
 
 ```
 k3s-platform/
-├── 📁 .github/
-│   └── 📁 workflows/
-│       └── 📄 ci-cd.yml              # CI/CD pipeline
-│
-├── 📁 app/
-│   ├── 📄 Dockerfile                 # Docker-образ приложения
-│   ├── 📄 index.html                 # Кастомная landing page
-│   └── 📄 nginx.conf                 # Конфигурация nginx
-│
-├── 📁 helm/
-│   └── 📁 myapp/
-│       ├── 📄 Chart.yaml             # Метаданные Helm chart
-│       ├── 📄 values.yaml            # Параметры деплоя
-│       └── 📁 templates/             # K8s манифесты (шаблоны)
-│
-├── 📁 manifests/
-│   └── 📁 argocd/                    # ArgoCD Applications
-│
-├── 📁 screenshots/                   # Скриншоты для README
-└── 📄 README.md
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yml              # CI/CD pipeline
+├── app/
+│   ├── Dockerfile                 # Docker-образ приложения
+│   ├── index.html                 # Кастомная landing page
+│   └── nginx.conf                 # Конфигурация nginx
+├── helm/
+│   └── myapp/
+│       ├── Chart.yaml             # Метаданные Helm chart
+│       ├── values.yaml            # Параметры деплоя
+│       └── templates/             # K8s манифесты (шаблоны)
+├── manifests/
+│   └── argocd/                    # ArgoCD Applications
+├── screenshots/                   # Скриншоты для README
+└── README.md
 ```
 
 ---
@@ -198,22 +194,17 @@ k3s-platform/
 
 ```bash
 # На Master-ноде
-curl -sfL https://get.k3s.io | sh -s - server \
-  --disable=traefik \
-  --flannel-backend=vxlan
+curl -sfL https://get.k3s.io | sh -s - server --disable=traefik --flannel-backend=vxlan
 
 # На Worker-ноде
-curl -sfL https://get.k3s.io | \
-  K3S_URL=https://<master-ip>:6443 \
-  K3S_TOKEN=<token> sh -
+curl -sfL https://get.k3s.io | K3S_URL=https://<master-ip>:6443 K3S_TOKEN=<token> sh -
 ```
 
 ### 2. Установи ArgoCD
 
 ```bash
 kubectl create namespace argocd
-kubectl apply -n argocd -f \
-  https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 ```
 
 ### 3. Задеплой приложение
@@ -225,38 +216,10 @@ kubectl apply -f manifests/argocd/myapp.yaml
 ### 4. Установи мониторинг
 
 ```bash
-helm repo add prometheus-community \
-  https://prometheus-community.github.io/helm-charts
-
-helm install prometheus prometheus-community/kube-prometheus-stack \
-  -n monitoring --create-namespace
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm install prometheus prometheus-community/kube-prometheus-stack -n monitoring --create-namespace
 ```
 
----
-
-## 🎓 Чему я научился
-
-| Навык | Уровень |
-|-------|---------|
-| Kubernetes (Multi-Node) | ⭐⭐⭐⭐ |
-| GitOps (ArgoCD) | ⭐⭐⭐⭐⭐ |
-| CI/CD (GitHub Actions) | ⭐⭐⭐⭐ |
-| Helm (packaging) | ⭐⭐⭐⭐ |
-| Monitoring (Prometheus + Grafana) | ⭐⭐⭐⭐ |
-| Linux Hardening | ⭐⭐⭐ |
-
----
-
-## 🗺️ Roadmap
-
-- [ ] 🔐 **Vaultwarden** — self-hosted password manager
-- [ ] 📬 **Telegram alerts** через Alertmanager
-- [ ] 📝 **Loki** для централизованных логов
-- [ ] 🔒 **cert-manager** + Let's Encrypt
-- [ ] 🦊 **GitLab CI** — гибридный CI/CD
-- [ ] 🕸️ **Service Mesh** (Istio / Linkerd)
-
----
 
 ## 👤 Автор
 
@@ -267,11 +230,3 @@ helm install prometheus prometheus-community/kube-prometheus-stack \
 
 ---
 
-<div align="center">
-
-**⭐ Если проект был полезен — поставь звезду!**
-
-Made with ❤️ and lots of `kubectl` commands
-
-</div>
-```
