@@ -1,187 +1,277 @@
-# 🚀 K3s Platform — Production-Ready Kubernetes GitOps Platform
+```markdown
+<div align="center">
 
-[![CI/CD Pipeline](https://github.com/valeriypalchukovskiy/k3s-platform/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/valeriypalchukovskiy/k3s-platform/actions)
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-K3s-blue?logo=kubernetes)](https://k3s.io)
-[![GitOps](https://img.shields.io/badge/GitOps-ArgoCD-red?logo=argo)](https://argoproj.github.io/cd/)
-[![Monitoring](https://img.shields.io/badge/Monitoring-Prometheus+Grafana-orange?logo=prometheus)](https://prometheus.io)
+# 🚀 K3s Platform
 
-**Pet-проект:** Полноценная DevOps-платформа с Multi-Node K3s, GitOps деплоем, CI/CD пайплайном и production-grade мониторингом. От `git push` до работающего приложения за 3 минуты, полностью автоматически.
+### Production-Ready Kubernetes GitOps Platform
+
+[![CI/CD](https://github.com/valeriypalchukovskiy/k3s-platform/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/valeriypalchukovskiy/k3s-platform/actions)
+![K3s](https://img.shields.io/badge/K3s-v1.29-blue?logo=kubernetes)
+![ArgoCD](https://img.shields.io/badge/ArgoCD-GitOps-red?logo=argo)
+![Prometheus](https://img.shields.io/badge/Prometheus-Monitoring-orange?logo=prometheus)
+![Grafana](https://img.shields.io/badge/Grafana-Dashboards-yellow?logo=grafana)
+
+**От `git push` до production за 3 минуты, полностью автоматически.**
+
+</div>
 
 ---
 
-## 🎯 Архитектура
-┌─────────────────────────────────────────────────────────┐
-│ DEVELOPER WORKFLOW │
-│ Developer ──[git push]──→ GitHub Actions │
-│ ├─ Lint (Helm, YAML) │
-│ └─ Build (Docker → GHCR) │
-└─────────────────────────────────────────────────────────┘
-↓
-┌─────────────────────────────────────────────────────────┐
-│ GITOPS LAYER │
-│ ArgoCD (каждые 3 мин) — Sync + Self-healing │
-└─────────────────────────────────────────────────────────┘
-↓
-┌─────────────────────────────────────────────────────────┐
-│ MULTI-NODE K3S CLUSTER │
-│ Master (4GB) ◄────► Worker (1GB) │
-│ • Control plane • K3s agent │
-│ • ArgoCD • App pods │
-│ • Prometheus • Node exporter │
-│ • Grafana │
-└─────────────────────────────────────────────────────────┘
+## 🎯 Обзор
+
+Полноценная DevOps-платформа, реализующая современные практики:
+
+- 🏗️ **Infrastructure as Code** — Ansible для настройки серверов
+- 🔄 **GitOps** — ArgoCD для декларативного деплоя
+- ⚙️ **CI/CD** — GitHub Actions для автоматизации
+- 📊 **Observability** — Prometheus + Grafana для мониторинга
+- 🔒 **Security** — UFW, Fail2Ban, SSH hardening
+
+---
+
+## 🏛️ Архитектура
+
+```mermaid
+graph TB
+    subgraph "👨‍💻 Developer Workflow"
+        A[Разработчик] -->|git push| B[GitHub]
+        B --> C[GitHub Actions]
+        C -->|Lint + Build| D[GHCR Registry]
+    end
+
+    subgraph "🔄 GitOps Layer"
+        E[ArgoCD] -->|Poll каждые 3 мин| B
+        E -->|Self-healing| F[(Git = Source of Truth)]
+    end
+
+    subgraph "☸️ K3s Cluster"
+        direction LR
+        subgraph "Master Node (4GB)"
+            G[Control Plane]
+            H[ArgoCD]
+            I[Prometheus]
+            J[Grafana]
+        end
+        subgraph "Worker Node (1GB)"
+            K[K3s Agent]
+            L[App Pods]
+            M[Node Exporter]
+        end
+        G <-->|Flannel VXLAN| K
+    end
+
+    D -->|Pull Image| L
+    E -->|Sync| H
+    I -->|Scrape| M
+    I -->|Scrape| L
+    J -->|Query| I
+```
 
 ---
 
 ## 🛠️ Технологический стек
 
-| Категория | Технологии |
-|-----------|------------|
-| **Orchestration** | K3s (lightweight Kubernetes) |
-| **GitOps** | ArgoCD |
-| **CI/CD** | GitHub Actions |
-| **Registry** | GitHub Container Registry (GHCR) |
-| **Packaging** | Helm 3 |
-| **Monitoring** | Prometheus + Grafana |
-| **Networking** | Flannel VXLAN |
-| **Security** | UFW, Fail2Ban, SSH keys only |
+| Категория | Технология | Назначение |
+|-----------|------------|------------|
+| **Orchestration** | K3s | Lightweight Kubernetes |
+| **GitOps** | ArgoCD | Декларативный деплой |
+| **CI/CD** | GitHub Actions | Автоматизация сборки |
+| **Registry** | GHCR | Хранилище Docker-образов |
+| **Packaging** | Helm 3 | Пакетный менеджер K8s |
+| **Monitoring** | Prometheus + Grafana | Метрики и визуализация |
+| **Networking** | Flannel VXLAN | Overlay сеть |
+| **Security** | UFW, Fail2Ban | Hardening серверов |
+| **IaC** | Ansible | Настройка серверов |
 
 ---
 
 ## 📸 Скриншоты
 
-<details>
-<summary><b>🖼️ Показать все скриншоты (7)</b></summary>
+| CI/CD Pipeline | GitOps Dashboard |
+|:--------------:|:----------------:|
+| ![GitHub Actions](screenshots/screenshot-01.png) | ![ArgoCD UI](screenshots/screenshot-02.png) |
 
-### GitHub Actions — автоматическая сборка и линтинг
-![GitHub Actions](screenshots/screenshot-01.png)
+| Monitoring | Prometheus Targets |
+|:----------:|:------------------:|
+| ![Grafana Dashboard](screenshots/screenshot-03.png) | ![Prometheus Targets](screenshots/screenshot-04.png) |
 
-### ArgoCD UI — GitOps деплой с self-healing
-![ArgoCD](screenshots/screenshot-02.png)
-
-### Grafana — мониторинг кластера
-![Grafana Dashboard](screenshots/screenshot-03.png)
-
-### Prometheus Targets — метрики с обеих нод
-![Prometheus Targets](screenshots/screenshot-04.png)
-
-### Kubernetes Cluster — 2 ноды Ready
-![Kubernetes Nodes](screenshots/screenshot-05.png)
-
-### Работающие поды приложения
-![Kubernetes Pods](screenshots/screenshot-06.png)
-
-### Задеплоенное приложение в браузере
-![Application](screenshots/screenshot-07.png)
-
-</details>
+| Kubernetes Cluster | Running Pods | Deployed App |
+|:------------------:|:------------:|:------------:|
+| ![Nodes](screenshots/screenshot-05.png) | ![Pods](screenshots/screenshot-06.png) | ![Application](screenshots/screenshot-07.png) |
 
 ---
 
 ## ✅ Что реализовано
 
-### Инфраструктура
-- ✅ **Multi-Node K3s** (Master + Worker на VPS)
-- ✅ **Overlay сеть** через Flannel VXLAN
-- ✅ **Linux hardening**: UFW, Fail2Ban, SSH keys only
-- ✅ **Автоматическая настройка** серверов через Ansible
+### 🏗️ Инфраструктура
 
-### CI/CD Pipeline
-- ✅ **GitHub Actions** workflow с stages: lint → build → push
-- ✅ **Helm lint** и **YAML validation** на каждый PR
-- ✅ **Docker build** с оптимизированными слоями
-- ✅ **Push to GHCR** с автоматическими тегами (SHA + latest)
+- Multi-Node K3s кластер на 2 VPS (Master + Worker)
+- Overlay сеть через Flannel VXLAN
+- Linux hardening: UFW firewall, Fail2Ban, SSH keys only
+- Ansible playbooks для автоматической настройки серверов
 
-### GitOps
-- ✅ **ArgoCD** для декларативного деплоя
-- ✅ **Automated sync** + **self-healing**
-- ✅ **Health checks** и **sync status** мониторинг
+### 🔄 CI/CD Pipeline
 
-### Monitoring & Observability
-- ✅ **Prometheus** со сбором метрик с обеих нод
-- ✅ **Grafana** с дашбордами (1860, 315, 6417)
-- ✅ **Node Exporter** + **kube-state-metrics** + **cAdvisor**
+- GitHub Actions workflow с stages: `lint` → `build` → `push`
+- Helm lint и YAML validation на каждый PR
+- Docker multi-stage build с оптимизацией слоёв
+- Автоматические теги (SHA коммита + `latest`)
 
-### Отказоустойчивость
-- ✅ **Automatic pod rescheduling** при падении ноды
-- ✅ **Rolling updates** без простоя
-- ✅ **Git-based rollback** через `git revert`
+### 🎯 GitOps
+
+- ArgoCD с автоматической синхронизацией каждые 3 минуты
+- Self-healing — ручные изменения откатываются автоматически
+- Health checks и статусы синхронизации в UI
+
+### 📊 Observability
+
+- Prometheus со сбором метрик с обеих нод
+- Grafana с 15+ импортированными дашбордами (1860, 315, 6417)
+- Node Exporter + kube-state-metrics + cAdvisor
+
+### 🛡️ Отказоустойчивость
+
+- Автоматический rescheduling подов при падении ноды
+- Zero-downtime rolling updates
+- Git-based rollback через `git revert`
 
 ---
 
-## 🎯 Ключевые фичи
-
-### 1. От коммита до production за 3 минуты
+## 🎬 Как это работает
 
 ```bash
-git commit -m "feat: new feature"
+# 1. Разработчик вносит изменения
+git commit -m "feat: add new feature"
 git push origin main
-# → GitHub Actions → GHCR → ArgoCD → Kubernetes → App running!
+
+# 2. GitHub Actions автоматически:
+#    - Проверяет Helm charts (lint)
+#    - Собирает Docker-образ
+#    - Пушит в GHCR
+
+# 3. ArgoCD видит изменения в Git и применяет:
+#    - Обновляет Deployment в кластере
+#    - Rolling update без простоя
+
+# 4. Через 3 минуты приложение работает с новой версией ✨
 ```
 
-2. Self-healing кластера
-ArgoCD автоматически откатывает ручные изменения через kubectl patch — Git остаётся единственным источником правды.
-3. Production-grade мониторинг
-Метрики с обеих нод (Master + Worker)
-15+ дашбордов Grafana
-ServiceMonitor CRD для автоматического discovery
+---
 
+## 📂 Структура проекта
 
-📂 Структура проекта
-
+```
 k3s-platform/
-├── .github/workflows/ci-cd.yml     # GitHub Actions pipeline
-├── app/
-│   ├── Dockerfile                  # Docker образ приложения
-│   ├── index.html                  # Кастомная landing page
-│   └── nginx.conf                  # Конфиг nginx
-├── helm/myapp/
-│   ├── Chart.yaml                  # Метаданные chart
-│   ├── values.yaml                 # Параметры
-│   └── templates/                  # K8s манифесты
-├── manifests/argocd/               # ArgoCD Applications
-├── screenshots/                    # Скриншоты проекта
-└── README.md
+├── 📁 .github/
+│   └── 📁 workflows/
+│       └── 📄 ci-cd.yml              # CI/CD pipeline
+│
+├── 📁 app/
+│   ├── 📄 Dockerfile                 # Docker-образ приложения
+│   ├── 📄 index.html                 # Кастомная landing page
+│   └── 📄 nginx.conf                 # Конфигурация nginx
+│
+├── 📁 helm/
+│   └── 📁 myapp/
+│       ├── 📄 Chart.yaml             # Метаданные Helm chart
+│       ├── 📄 values.yaml            # Параметры деплоя
+│       └── 📁 templates/             # K8s манифесты (шаблоны)
+│
+├── 📁 manifests/
+│   └── 📁 argocd/                    # ArgoCD Applications
+│
+├── 📁 screenshots/                   # Скриншоты для README
+└── 📄 README.md
+```
 
-🚀 Быстрый старт
+---
 
-# 1. Клонируй
-git clone https://github.com/valeriypalchukovskiy/k3s-platform.git
-cd k3s-platform
+## 🚀 Быстрый старт
 
-# 2. Настрой K3s на Master
-curl -sfL https://get.k3s.io | sh -s - server --flannel-backend=vxlan
+### Требования
 
-# 3. Установи ArgoCD
+- 2 VPS сервера (Ubuntu 22.04+, 4GB + 1GB RAM)
+- `kubectl`, `helm` установлены локально
+- GitHub аккаунт
+
+### 1. Установи K3s
+
+```bash
+# На Master-ноде
+curl -sfL https://get.k3s.io | sh -s - server \
+  --disable=traefik \
+  --flannel-backend=vxlan
+
+# На Worker-ноде
+curl -sfL https://get.k3s.io | \
+  K3S_URL=https://<master-ip>:6443 \
+  K3S_TOKEN=<token> sh -
+```
+
+### 2. Установи ArgoCD
+
+```bash
 kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl apply -n argocd -f \
+  https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+```
 
-# 4. Deploy приложение
+### 3. Задеплой приложение
+
+```bash
 kubectl apply -f manifests/argocd/myapp.yaml
+```
 
-# 5. Monitoring stack
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+### 4. Установи мониторинг
+
+```bash
+helm repo add prometheus-community \
+  https://prometheus-community.github.io/helm-charts
+
 helm install prometheus prometheus-community/kube-prometheus-stack \
   -n monitoring --create-namespace
+```
 
-🎓 Чему я научился
-Проектировать production-ready Kubernetes архитектуру
-Строить GitOps workflow с ArgoCD
-Настраивать CI/CD pipeline через GitHub Actions
-Писать Helm charts с шаблонами
-Внедрять observability через Prometheus + Grafana
-Обеспечивать безопасность через Linux hardening
-Troubleshoot проблемы на всех уровнях
-🗺️ Roadmap
-Vaultwarden — self-hosted password manager
-Telegram alerts через Alertmanager
-Loki для централизованных логов
-cert-manager + Let's Encrypt для HTTPS
-GitLab CI (гибридный CI/CD)
-👤 Автор
-Valeriy Palchukovskiy
-GitHub: @valeriypalchukovskiy
-Email: valeriy_palchukovskiy@mail.ru
-<p align="center">
-<b>⭐ Если проект был полезен — поставь звезду!</b>
-</p>
+---
+
+## 🎓 Чему я научился
+
+| Навык | Уровень |
+|-------|---------|
+| Kubernetes (Multi-Node) | ⭐⭐⭐⭐ |
+| GitOps (ArgoCD) | ⭐⭐⭐⭐⭐ |
+| CI/CD (GitHub Actions) | ⭐⭐⭐⭐ |
+| Helm (packaging) | ⭐⭐⭐⭐ |
+| Monitoring (Prometheus + Grafana) | ⭐⭐⭐⭐ |
+| Linux Hardening | ⭐⭐⭐ |
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] 🔐 **Vaultwarden** — self-hosted password manager
+- [ ] 📬 **Telegram alerts** через Alertmanager
+- [ ] 📝 **Loki** для централизованных логов
+- [ ] 🔒 **cert-manager** + Let's Encrypt
+- [ ] 🦊 **GitLab CI** — гибридный CI/CD
+- [ ] 🕸️ **Service Mesh** (Istio / Linkerd)
+
+---
+
+## 👤 Автор
+
+**Valeriy Palchukovskiy**
+
+[![GitHub](https://img.shields.io/badge/GitHub-valeriypalchukovskiy-black?logo=github)](https://github.com/valeriypalchukovskiy)
+[![Email](https://img.shields.io/badge/Email-valeriy_palchukovskiy@mail.ru-blue?logo=gmail)](mailto:valeriy_palchukovskiy@mail.ru)
+
+---
+
+<div align="center">
+
+**⭐ Если проект был полезен — поставь звезду!**
+
+Made with ❤️ and lots of `kubectl` commands
+
+</div>
+```
