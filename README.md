@@ -1,189 +1,187 @@
-# 🚀 Production-Ready K3s Platform
+# 🚀 K3s Platform — Production-Ready Kubernetes GitOps Platform
 
 [![CI/CD Pipeline](https://github.com/valeriypalchukovskiy/k3s-platform/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/valeriypalchukovskiy/k3s-platform/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-K3s-blue?logo=kubernetes)](https://k3s.io)
+[![GitOps](https://img.shields.io/badge/GitOps-ArgoCD-red?logo=argo)](https://argoproj.github.io/cd/)
+[![Monitoring](https://img.shields.io/badge/Monitoring-Prometheus+Grafana-orange?logo=prometheus)](https://prometheus.io)
 
-Полноценная Kubernetes-платформа на базе **K3s** с Multi-Node архитектурой, GitOps-подходом, CI/CD пайплайнами и полным стеком observability.
-
-> 💡 **Статус проекта:** Активная разработка (Июнь 2026 – настоящее время)
-
----
-
-## 🎯 О проекте
-
-Платформа развернута на **двух VPS** от разных провайдеров (UltraVDS + JustHost) для демонстрации работы распределённого кластера в production-окружении.
-
-### Ключевые возможности
-
-- ✅ **Multi-Node K3s кластер** (Master + Worker) с overlay-сетью Flannel (VXLAN)
-- ✅ **Infrastructure as Code** через Terraform и Ansible
-- ✅ **GitOps подход** с ArgoCD для автоматической синхронизации
-- ✅ **CI/CD на GitHub Actions** (< 2 минут от коммита до production)
-- ✅ **Автоматический SSL** через cert-manager + Let's Encrypt
-- ✅ **Полный observability stack:** Prometheus, Grafana, Loki, Alertmanager
-- ✅ **Production-grade безопасность:** SSH hardening, UFW, Fail2Ban, RBAC
-
-### Результаты
-
-| Метрика | До автоматизации | После |
-|---------|------------------|-------|
-| **Время деплоя** | 15 минут (ручной) | **< 2 минут** |
-| **Использование RAM** | 12+ GB (full K8s) | **5 GB** (K3s) |
-| **Автоматизация** | 20% | **100%** |
-| **Восстановление при сбое** | ~15 минут | **< 30 секунд** |
+**Pet-проект:** Полноценная DevOps-платформа с Multi-Node K3s, GitOps деплоем, CI/CD пайплайном и production-grade мониторингом. От `git push` до работающего приложения за 3 минуты, полностью автоматически.
 
 ---
 
-## 🏗 Архитектура
+## 🎯 Архитектура
+┌─────────────────────────────────────────────────────────┐
+│ DEVELOPER WORKFLOW │
+│ Developer ──[git push]──→ GitHub Actions │
+│ ├─ Lint (Helm, YAML) │
+│ └─ Build (Docker → GHCR) │
+└─────────────────────────────────────────────────────────┘
+↓
+┌─────────────────────────────────────────────────────────┐
+│ GITOPS LAYER │
+│ ArgoCD (каждые 3 мин) — Sync + Self-healing │
+└─────────────────────────────────────────────────────────┘
+↓
+┌─────────────────────────────────────────────────────────┐
+│ MULTI-NODE K3S CLUSTER │
+│ Master (4GB) ◄────► Worker (1GB) │
+│ • Control plane • K3s agent │
+│ • ArgoCD • App pods │
+│ • Prometheus • Node exporter │
+│ • Grafana │
+└─────────────────────────────────────────────────────────┘
 
-```mermaid
-flowchart TB
-    subgraph External["🌐 Внешняя среда"]
-        User["👤 Пользователь"]
-        GitHub[("🐙 GitHub Repo")]
-    end
-    subgraph Master["🟩 Master — UltraVDS · 2vCPU/4GB"]
-        API["🔷 K3s API :6443"]
-        Ingress["🌐 Nginx Ingress"]
-        ArgoCD["🔄 ArgoCD"]
-        Prometheus["📈 Prometheus"]
-        Grafana["📊 Grafana"]
-        Loki["📝 Loki"]
-    end
-    subgraph Worker["🟨 Worker — JustHost · 1vCPU/1GB"]
-        Kubelet["⚙️ Kubelet"]
-        Flannel["🔗 Flannel"]
-        Pod1["📦 Pod #1"]
-        Pod2["📦 Pod #2"]
-    end
-    User --> Ingress
-    Ingress --> Pod1
-    Ingress --> Pod2
-    ArgoCD --> API
-    API --> Kubelet
-    Flannel <-.->|"VXLAN"| API
-    GitHub -.-> ArgoCD
-    Prometheus -.-> API
-    Grafana -.-> Prometheus
+---
+
+## 🛠️ Технологический стек
+
+| Категория | Технологии |
+|-----------|------------|
+| **Orchestration** | K3s (lightweight Kubernetes) |
+| **GitOps** | ArgoCD |
+| **CI/CD** | GitHub Actions |
+| **Registry** | GitHub Container Registry (GHCR) |
+| **Packaging** | Helm 3 |
+| **Monitoring** | Prometheus + Grafana |
+| **Networking** | Flannel VXLAN |
+| **Security** | UFW, Fail2Ban, SSH keys only |
+
+---
+
+## 📸 Скриншоты
+
+<details>
+<summary><b>🖼️ Показать все скриншоты (7)</b></summary>
+
+### GitHub Actions — автоматическая сборка и линтинг
+![GitHub Actions](screenshots/screenshot-01.png)
+
+### ArgoCD UI — GitOps деплой с self-healing
+![ArgoCD](screenshots/screenshot-02.png)
+
+### Grafana — мониторинг кластера
+![Grafana Dashboard](screenshots/screenshot-03.png)
+
+### Prometheus Targets — метрики с обеих нод
+![Prometheus Targets](screenshots/screenshot-04.png)
+
+### Kubernetes Cluster — 2 ноды Ready
+![Kubernetes Nodes](screenshots/screenshot-05.png)
+
+### Работающие поды приложения
+![Kubernetes Pods](screenshots/screenshot-06.png)
+
+### Задеплоенное приложение в браузере
+![Application](screenshots/screenshot-07.png)
+
+</details>
+
+---
+
+## ✅ Что реализовано
+
+### Инфраструктура
+- ✅ **Multi-Node K3s** (Master + Worker на VPS)
+- ✅ **Overlay сеть** через Flannel VXLAN
+- ✅ **Linux hardening**: UFW, Fail2Ban, SSH keys only
+- ✅ **Автоматическая настройка** серверов через Ansible
+
+### CI/CD Pipeline
+- ✅ **GitHub Actions** workflow с stages: lint → build → push
+- ✅ **Helm lint** и **YAML validation** на каждый PR
+- ✅ **Docker build** с оптимизированными слоями
+- ✅ **Push to GHCR** с автоматическими тегами (SHA + latest)
+
+### GitOps
+- ✅ **ArgoCD** для декларативного деплоя
+- ✅ **Automated sync** + **self-healing**
+- ✅ **Health checks** и **sync status** мониторинг
+
+### Monitoring & Observability
+- ✅ **Prometheus** со сбором метрик с обеих нод
+- ✅ **Grafana** с дашбордами (1860, 315, 6417)
+- ✅ **Node Exporter** + **kube-state-metrics** + **cAdvisor**
+
+### Отказоустойчивость
+- ✅ **Automatic pod rescheduling** при падении ноды
+- ✅ **Rolling updates** без простоя
+- ✅ **Git-based rollback** через `git revert`
+
+---
+
+## 🎯 Ключевые фичи
+
+### 1. От коммита до production за 3 минуты
+
+```bash
+git commit -m "feat: new feature"
+git push origin main
+# → GitHub Actions → GHCR → ArgoCD → Kubernetes → App running!
 ```
 
-**Master Node (UltraVDS, 2 vCPU / 4 GB RAM):**
-- K3s API Server — единая точка входа
-- ArgoCD — GitOps оператор
-- Prometheus + Grafana + Loki — observability stack
-- Nginx Ingress Controller + cert-manager — HTTPS трафик
-- Gitea — self-hosted Git (backup)
+2. Self-healing кластера
+ArgoCD автоматически откатывает ручные изменения через kubectl patch — Git остаётся единственным источником правды.
+3. Production-grade мониторинг
+Метрики с обеих нод (Master + Worker)
+15+ дашбордов Grafana
+ServiceMonitor CRD для автоматического discovery
 
-**Worker Node (JustHost, 1 vCPU / 1 GB RAM):**
-- kubelet + kube-proxy + containerd
-- Flannel CNI (VXLAN overlay)
-- Application Pods (реплики распределены между нодами)
 
-**Связь между нодами:** VXLAN туннель через UDP 8472
+📂 Структура проекта
 
----
+k3s-platform/
+├── .github/workflows/ci-cd.yml     # GitHub Actions pipeline
+├── app/
+│   ├── Dockerfile                  # Docker образ приложения
+│   ├── index.html                  # Кастомная landing page
+│   └── nginx.conf                  # Конфиг nginx
+├── helm/myapp/
+│   ├── Chart.yaml                  # Метаданные chart
+│   ├── values.yaml                 # Параметры
+│   └── templates/                  # K8s манифесты
+├── manifests/argocd/               # ArgoCD Applications
+├── screenshots/                    # Скриншоты проекта
+└── README.md
 
-## 🛠 Технологический стек
+🚀 Быстрый старт
 
-| Слой | Технологии |
-|------|-----------|
-| **Оркестрация** | K3s v1.36, kubectl, Helm 3 |
-| **Контейнеризация** | Docker, containerd |
-| **IaC** | Terraform 1.9, Ansible 2.17 |
-| **CI/CD** | GitHub Actions, ArgoCD |
-| **Сеть** | Flannel (VXLAN), Nginx Ingress |
-| **TLS** | cert-manager, Let's Encrypt |
-| **Мониторинг** | Prometheus, Grafana, Alertmanager |
-| **Логи** | Loki, Promtail |
-| **Git** | GitHub (основной), Gitea (self-hosted) |
-| **ОС** | Ubuntu 24.04 LTS |
+# 1. Клонируй
+git clone https://github.com/valeriypalchukovskiy/k3s-platform.git
+cd k3s-platform
 
----
+# 2. Настрой K3s на Master
+curl -sfL https://get.k3s.io | sh -s - server --flannel-backend=vxlan
 
-## 🚀 Быстрый старт
+# 3. Установи ArgoCD
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
-### 1. Подготовка инфраструктуры (Terraform)
+# 4. Deploy приложение
+kubectl apply -f manifests/argocd/myapp.yaml
 
-    cd terraform
-    terraform init
-    terraform plan
-    terraform apply
+# 5. Monitoring stack
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm install prometheus prometheus-community/kube-prometheus-stack \
+  -n monitoring --create-namespace
 
-### 2. Настройка серверов (Ansible)
-
-    cd ansible
-    ansible-playbook -i inventories/production.ini playbooks/setup-k3s.yml
-
-### 3. Установка observability stack
-
-    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-    helm install prometheus prometheus-community/kube-prometheus-stack \
-      --namespace monitoring --create-namespace
-
-### 4. Настройка ArgoCD
-
-    kubectl create namespace argocd
-    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-    kubectl apply -f argocd/applications/
-
----
-
-## 📂 Структура репозитория
-
-    k3s-platform/
-    ├── terraform/              # Infrastructure as Code
-    ├── ansible/                # Configuration Management
-    ├── helm/                   # Helm Charts
-    ├── k8s/                    # Kubernetes manifests
-    ├── argocd/                 # GitOps конфигурация
-    ├── monitoring/             # Observability stack
-    ├── .github/workflows/      # CI/CD pipelines
-    ├── docs/                   # Документация
-    ├── scripts/                # Вспомогательные скрипты
-    ├── README.md
-    ├── CHANGELOG.md
-    └── .gitignore
-
----
-
-## 🔄 CI/CD Pipeline
-
-**push to main → lint → build Docker image → push to GHCR → update Helm values → ArgoCD sync → deploy to K3s**
-
-**Общее время:** ~2 минуты от коммита до production
-
----
-
-## 🛡 Безопасность
-
-- ✅ SSH hardening (только ключевая аутентификация)
-- ✅ UFW firewall (открыты только необходимые порты)
-- ✅ Fail2Ban (защита от брутфорса)
-- ✅ Swap disabled (требование Kubernetes)
-- ✅ RBAC (минимальные привилегии)
-- ✅ Network Policies (изоляция traffic)
-- ✅ Automatic TLS (HTTPS для всех ingress)
-
----
-
-## 🚧 Roadmap
-
-- [ ] HashiCorp Vault для управления секретами
-- [ ] Velero для backup кластера
-- [ ] Trivy для сканирования Docker-образов
-- [ ] Argo Rollouts для canary-деплоя
-- [ ] KEDA для event-driven autoscaling
-
----
-
-## 👤 Автор
-
-**Валерий Пальчуковский**
-- 📧 valeriy_palchukovskiy@mail.ru
-- 🐙 [GitHub](https://github.com/valeriypalchukovskiy)
-
----
-
-## 📄 Лицензия
-
-MIT License. Свободно используйте и модифицируйте.
+🎓 Чему я научился
+Проектировать production-ready Kubernetes архитектуру
+Строить GitOps workflow с ArgoCD
+Настраивать CI/CD pipeline через GitHub Actions
+Писать Helm charts с шаблонами
+Внедрять observability через Prometheus + Grafana
+Обеспечивать безопасность через Linux hardening
+Troubleshoot проблемы на всех уровнях
+🗺️ Roadmap
+Vaultwarden — self-hosted password manager
+Telegram alerts через Alertmanager
+Loki для централизованных логов
+cert-manager + Let's Encrypt для HTTPS
+GitLab CI (гибридный CI/CD)
+👤 Автор
+Valeriy Palchukovskiy
+GitHub: @valeriypalchukovskiy
+Email: valeriy_palchukovskiy@mail.ru
+<p align="center">
+<b>⭐ Если проект был полезен — поставь звезду!</b>
+</p>
