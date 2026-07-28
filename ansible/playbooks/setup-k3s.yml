@@ -151,4 +151,3 @@
           K3S_TOKEN="{{ hostvars[groups['master'][0]].k3s_token }}" sh -
       args:
         creates: /usr/local/bin/k3s
-ANSIBLE_EOF
